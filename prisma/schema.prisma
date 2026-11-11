@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id           String    @id @default(cuid())
+  title        String
+  author       String?
+  type         String // "pdf" | "text"
+  pageCount    Int       @default(0)
+  charCount    Int       @default(0)
+  textContent  String?
+  filePath     String?
+  fileSize     Int       @default(0)
+  lastPage     Int       @default(1)
+  lastScroll   Float     @default(0)
+  totalTimeSec Int       @default(0)
+  lastReadAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  segments   Segment[]
+  highlights Highlight[]
+}
+
+model Segment {
+  id        String   @id @default(cuid())
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  title     String
+  startPage Int?
+  endPage   Int?
+  startPos  Float?
+  endPos    Float?
+  done      Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Highlight {
+  id        String   @id @default(cuid())
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  page      Int?
+  startChar Int?
+  endChar   Int?
+  excerpt   String   @default("")
+  note      String?
+  color     String   @default("yellow")
+  createdAt DateTime @default(now())
+}
+
+model AppSettings {
+  id         String   @id @default("default")
+  theme      String   @default("sepia")
+  fontSize   Int      @default(19)
+  lineHeight Int      @default(185)
+  pageWidth  Int      @default(680)
+  updatedAt  DateTime @updatedAt
+}
